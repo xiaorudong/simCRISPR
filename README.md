@@ -4,7 +4,6 @@
 It models biological and technical variability, including sgRNA knockout effects, treatment and interaction effects, PCR amplification, and sequencing noise. 
 The framework is designed to support method development and benchmarking in CRISPR analysis.
 
----
 
 ## Installation
 
