@@ -4,15 +4,15 @@
 \alias{BLEH}
 \title{Generate Constant Random Noise Across sgRNAs}
 \usage{
-BLEH(SD, total_sgRNAs)
+BLEH(SD, n_total)
 }
 \arguments{
 \item{SD}{Standard deviation of the noise.}
 
-\item{total_sgRNAs}{Total number of sgRNAs to apply the noise to.}
+\item{n_total}{Total number of sgRNAs to apply the noise to.}
 }
 \value{
-A numeric vector of length `total_sgRNAs` with identical noise values.
+A numeric vector of length `n_total` with identical noise values.
 }
 \description{
 This function generates a constant random noise value drawn from a normal distribution with mean 0 and standard deviation `SD`,

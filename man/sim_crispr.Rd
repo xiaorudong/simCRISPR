@@ -33,9 +33,9 @@ sim_crispr(
   noise_SD = 0.005,
   days = 5,
   reps = 5,
-  total_sgRNAs = 1000,
-  nnontRNA = 100,
-  nsafeHb = 50,
+  n_total = 1000,
+  n_ntgt = 100,
+  n_sfhb = 50,
   initial_mu = 1000
 )
 }
@@ -96,11 +96,11 @@ sim_crispr(
 
 \item{reps}{Number of biological replicates per condition.}
 
-\item{total_sgRNAs}{Total number of sgRNAs, including knockout, non-targeting, and safe harbor controls.}
+\item{n_total}{Total number of sgRNAs, including knockout, non-targeting, and safe harbor controls.}
 
-\item{nnontRNA}{Number of non-targeting control sgRNAs.}
+\item{n_ntgt}{Number of non-targeting control sgRNAs.}
 
-\item{nsafeHb}{Number of safe harbor control sgRNAs.}
+\item{n_sfhb}{Number of safe harbor control sgRNAs.}
 
 \item{initial_mu}{Mean initial abundance of each sgRNA at the beginning of the experiment.}
 }

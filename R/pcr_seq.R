@@ -63,7 +63,7 @@ amplifyStep <- function(capturedMolecules, rounds,
   # simulate the PCR efficiency from a multivariate normal distribution
   sigma2 <- matrix(0, nrow = nrow(capturedMolecules), ncol = nrow(capturedMolecules), byrow = TRUE)
   diag(sigma2) <- rep(pcr_sd^2, nrow(capturedMolecules))
-  mu <- rnorm(nrow(capturedMolecules), cm_mu, cm_sd)
+  mu <- stats::rnorm(nrow(capturedMolecules), cm_mu, cm_sd)
 
   efficiencyPCR_mat <- t(MASS::mvrnorm(n=ncol(capturedMolecules), mu = mu, Sigma = sigma2))
   # head(efficiencyPCR_mat)
@@ -71,7 +71,7 @@ amplifyStep <- function(capturedMolecules, rounds,
   #
 
   # considering preferential amplification
-  efficiencyPrefersg <- rnorm(round(nrow(efficiencyPCR_mat)/10), ep_mu, ep_sd)
+  efficiencyPrefersg <- stats::rnorm(round(nrow(efficiencyPCR_mat)/10), ep_mu, ep_sd)
   pickPrefersg <- rep(0, nrow(efficiencyPCR_mat))
   pickPrefersg[sample(1:nrow(efficiencyPCR_mat), length(efficiencyPrefersg))] <- efficiencyPrefersg
   names(pickPrefersg) <- rownames(capturedMolecules)
@@ -109,7 +109,7 @@ sequenceStep <- function(amp_frags, totalDepth, sf_sd=0.03) {
   totalM <- colSums(amp_frags)
   target <- min(totalM)
   useMean <- target / totalM
-  SF <- useMean + rnorm(length(useMean), 0, sd = sf_sd)
+  SF <- useMean + stats::rnorm(length(useMean), 0, sd = sf_sd)
   SF[SF>1] <- 1
   SF[SF<0] <- 1e-4
   totalM <- totalM * SF
@@ -121,18 +121,18 @@ sequenceStep <- function(amp_frags, totalDepth, sf_sd=0.03) {
   }
 
   afterEq <- sapply(seq_len(ncol(geneProbs_all)), function(ind) {
-    rmultinom(n=1, size=inputRange[ind], prob=geneProbs_all[,ind])
+    stats::rmultinom(n=1, size=inputRange[ind], prob=geneProbs_all[,ind])
   })
 
   # mix all the samples, give unique gene_sample names
   Probs_all <- afterEq/sum(afterEq)
   # considering efficiency factors
-  efficiencyFactors <- rnorm(nrow(Probs_all), mean=.99, sd=0.01)
+  efficiencyFactors <- stats::rnorm(nrow(Probs_all), mean=.99, sd=0.01)
   efficiencyFactors <- pmin(efficiencyFactors, 1)
   adjustedProbs_all <- Probs_all * efficiencyFactors
 
   # begin sequencing
-  mycrispr_vec <- rmultinom(n=1, size=totalDepth, prob=as.vector(adjustedProbs_all))
+  mycrispr_vec <- stats::rmultinom(n=1, size=totalDepth, prob=as.vector(adjustedProbs_all))
   mycrispr <- matrix(mycrispr_vec, nrow = nrow(adjustedProbs_all), byrow = F)
 
   colnames(mycrispr) <- colnames(amp_frags)

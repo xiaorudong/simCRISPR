@@ -4,15 +4,15 @@
 \alias{sim_noise}
 \title{Generate Independent Random Noise for Each sgRNA}
 \usage{
-sim_noise(sd = 0.5, total_sgRNAs)
+sim_noise(sd = 0.5, n_total)
 }
 \arguments{
 \item{sd}{Standard deviation of the noise.}
 
-\item{total_sgRNAs}{Total number of sgRNAs to generate noise for.}
+\item{n_total}{Total number of sgRNAs to generate noise for.}
 }
 \value{
-A numeric vector of length `total_sgRNAs`, each element independently drawn from a normal distribution.
+A numeric vector of length `n_total`, each element independently drawn from a normal distribution.
 }
 \description{
 This function simulates sgRNA-specific noise by drawing independent values from a normal distribution with mean 0

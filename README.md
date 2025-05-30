@@ -20,7 +20,7 @@ Here is a basic example of how to use the `simCRISPR` package to generate CRISPR
 ```{r}
 library(simCRISPR)
 
-rawcount <- sim_crispr()
-rawdata <- sim_raw
-sim_data <- seq_add(rawdata)
+raw_obj <- sim_crispr()
+initial_data <- raw_obj$sim_raw
+sim_data <- seq_add(initial_data)
 ```
