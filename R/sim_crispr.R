@@ -31,9 +31,9 @@ sim_noise <- function(sd=0.5, n_total){
 
 
 
-#' Simulate CRISPR Pooled Screen Data
+#' Simulate Pooled CRISPR Screen Data
 #'
-#' This function generates synthetic data for CRISPR pooled screening experiments under various experimental conditions.
+#' This function generates synthetic data for pooled CRISPR screening experiments under various experimental conditions.
 #' It simulates counts by modeling sgRNA knockout effects, treatment effects, interaction effects, sequencing noise,
 #' and disturbances such as DNA damage responses. The function supports both exponential and logistic cell growth models.
 #'

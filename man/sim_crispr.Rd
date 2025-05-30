@@ -2,7 +2,7 @@
 % Please edit documentation in R/sim_crispr.R
 \name{sim_crispr}
 \alias{sim_crispr}
-\title{Simulate CRISPR Pooled Screen Data}
+\title{Simulate Pooled CRISPR Screen Data}
 \usage{
 sim_crispr(
   method = "exp",
@@ -120,7 +120,7 @@ The structure of the returned list depends on the specified `method`:
 }
 }
 \description{
-This function generates synthetic data for CRISPR pooled screening experiments under various experimental conditions.
+This function generates synthetic data for pooled CRISPR screening experiments under various experimental conditions.
 It simulates counts by modeling sgRNA knockout effects, treatment effects, interaction effects, sequencing noise,
 and disturbances such as DNA damage responses. The function supports both exponential and logistic cell growth models.
 }
