@@ -32,7 +32,7 @@ sim_crispr(
   bleh_SD = 0.1,
   noise_SD = 0.005,
   days = 5,
-  reps = 5,
+  reps = 3,
   n_total = 1000,
   n_ntgt = 100,
   n_sfhb = 50,
