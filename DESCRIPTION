@@ -1,7 +1,7 @@
 Package: simCRISPR
 Type: Package
 Title: Simulation Framework for CRISPR Pooled Screening Data
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(person(given = "Xiaoru", family = "Dong", role = c("aut", "cre"), email = "xdong1@ufl.edu", comment = c(ORCID = "0000-0003-3039-3004")),
               person(given = "Rhonda", family = "Bacher", role = c("ctb", "fnd"), email = "rbacher@ufl.edu", comment = c(ORCID = "0000-0001-5787-476X")))
 Description: Provides a simulation framework for generating synthetic data from CRISPR pooled screening experiments. The simulation captures key biological and experimental features. It supports both exponential and logistic cell growth models and allows flexible control of experimental design and technical variability.
