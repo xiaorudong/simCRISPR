@@ -40,6 +40,8 @@ sim_noise <- function(sd=0.5, n_total){
 #' @param method Growth model used to simulate cell population. Options are `"logit"`, `"exp"`, or `"both"`. Default is `"exp"`. `"logit"` uses the logistic growth formula, modeling saturation effects as cell populations approach a carrying capacity. `"exp"` uses exponential growth, assuming unlimited resources and constant growth rate. `"both"` generates output under both logistic and exponential growth models for comparison.
 #' @param samples Experimental design for sample generation. Options are `"independent"` or `"matched"`. Default is `"independent"`. `"independent"` means the control and treatment samples are generated independently. `"matched"` means the control and treatment samples are paired, simulating repeated measurements or shared sample origin.
 #' @param L Carrying capacity used in the logistic growth model.
+#' @param baseline_gr Baseline cell growth rate. This is the intrinsic growth rate before any perturbation effects (e.g., knockout or treatment) are applied.
+#'
 #' @param trt_eff_mu Mean of the treatment effect.
 #' @param trt_eff_sd Standard deviation of the treatment effect.
 #'
@@ -94,6 +96,8 @@ sim_noise <- function(sd=0.5, n_total){
 sim_crispr <- function(method = "exp",
                        samples = "independent",
                        L=10000,
+                       baseline_gr = 1,
+
                        trt_eff_mu= -0.5,
                        trt_eff_sd= 0.01,
 
@@ -144,7 +148,7 @@ sim_crispr <- function(method = "exp",
   nsgRNA <- n_total-n_ntgt-n_sfhb
 
   # original growth rate
-  orig_gr <- rep(1, n_total) # growth rate
+  orig_gr <- rep(baseline_gr, n_total) # growth rate
 
   # initial cells are from a binomial distribution
   # y0_binom_prob <- 0.5

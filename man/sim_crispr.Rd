@@ -8,6 +8,7 @@ sim_crispr(
   method = "exp",
   samples = "independent",
   L = 10000,
+  baseline_gr = 1,
   trt_eff_mu = -0.5,
   trt_eff_sd = 0.01,
   sg_eff_prop1 = 0.5,
@@ -45,6 +46,8 @@ sim_crispr(
 \item{samples}{Experimental design for sample generation. Options are `"independent"` or `"matched"`. Default is `"independent"`. `"independent"` means the control and treatment samples are generated independently. `"matched"` means the control and treatment samples are paired, simulating repeated measurements or shared sample origin.}
 
 \item{L}{Carrying capacity used in the logistic growth model.}
+
+\item{baseline_gr}{Baseline cell growth rate. This is the intrinsic growth rate before any perturbation effects (e.g., knockout or treatment) are applied.}
 
 \item{trt_eff_mu}{Mean of the treatment effect.}
 
