@@ -22,12 +22,16 @@ seq_add <- function(wide_data, rounds=5, totalDepth = 1e9,
                     ep_mu=0.01, ep_sd=0.001,
                     pcr_sd=0.02, sf_sd=0.03) {
 
+  cat("Starting the amplification step.\n")
   afteramp <- simCRISPR::amplifyStep(wide_data, rounds=rounds,
                           cm_mu=cm_mu, cm_sd=cm_sd,
                           ep_mu=ep_mu, ep_sd=ep_sd,
                           pcr_sd=pcr_sd)
 
+  cat("Amplification completed. Proceeding to sequencing.\n")
   combined_data <- as.data.frame(simCRISPR::sequenceStep(amp_frags=afteramp$amp_frags, totalDepth = totalDepth, sf_sd=sf_sd))
+
+  cat("\nSequencing completed.\n")
 
   return(combined_data)
 }
@@ -101,6 +105,7 @@ amplifyStep <- function(capturedMolecules, rounds,
 #'
 #' @return A data frame of simulated read counts for each sgRNA after sequencing, incorporating stochastic sampling noise.
 #' @importFrom stats rnorm rmultinom
+#' @importFrom utils setTxtProgressBar, txtProgressBar
 #'
 sequenceStep <- function(amp_frags, totalDepth, sf_sd=0.03) {
 
@@ -132,10 +137,24 @@ sequenceStep <- function(amp_frags, totalDepth, sf_sd=0.03) {
   adjustedProbs_all <- Probs_all * efficiencyFactors
 
   # begin sequencing
-  mycrispr_vec <- stats::rmultinom(n=1, size=totalDepth, prob=as.vector(adjustedProbs_all))
+  pb <- utils::txtProgressBar(min = 0, max = totalDepth %/% 1e9, style = 3) ; i=1 # add progressive bar
+
+  splitdepth <- totalDepth
+  sum_mycrispr <- matrix(rep(0, length(as.vector(adjustedProbs_all))), nrow = nrow(adjustedProbs_all), byrow = F)
+  while (splitdepth %/% 1e9 > 0) {
+    utils::setTxtProgressBar(pb, i); i=i+1 # add progressive bar
+    mycrispr_vec <- stats::rmultinom(n=1, size=1e9, prob=as.vector(adjustedProbs_all))
+    mycrispr <- matrix(mycrispr_vec, nrow = nrow(adjustedProbs_all), byrow = F)
+
+    sum_mycrispr <- sum_mycrispr+mycrispr
+    splitdepth <- splitdepth - 1e9
+  }
+  mycrispr_vec <- stats::rmultinom(n=1, size=splitdepth, prob=as.vector(adjustedProbs_all))
   mycrispr <- matrix(mycrispr_vec, nrow = nrow(adjustedProbs_all), byrow = F)
 
-  colnames(mycrispr) <- colnames(amp_frags)
-  rownames(mycrispr) <- rownames(amp_frags)
-  return(mycrispr)
+  sum_mycrispr <- sum_mycrispr+mycrispr
+
+  colnames(sum_mycrispr) <- colnames(amp_frags)
+  rownames(sum_mycrispr) <- rownames(amp_frags)
+  return(sum_mycrispr)
 }
