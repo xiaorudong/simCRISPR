@@ -105,7 +105,7 @@ amplifyStep <- function(capturedMolecules, rounds,
 #'
 #' @return A data frame of simulated read counts for each sgRNA after sequencing, incorporating stochastic sampling noise.
 #' @importFrom stats rnorm rmultinom
-#' @importFrom utils setTxtProgressBar, txtProgressBar
+#' @importFrom utils setTxtProgressBar txtProgressBar
 #'
 sequenceStep <- function(amp_frags, totalDepth, sf_sd=0.03) {
 

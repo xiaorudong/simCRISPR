@@ -145,7 +145,7 @@ sim_crispr <- function(method = "exp",
   ###### Simulation Settings ######
   #################################
 
-  nsgRNA <- n_total-n_ntgt-n_sfhb
+  n_sgRNA <- n_total-n_ntgt-n_sfhb
 
   # original growth rate
   orig_gr <- rep(baseline_gr, n_total) # growth rate
@@ -161,20 +161,20 @@ sim_crispr <- function(method = "exp",
 
   # knock out efficiency based on beta distribution
   # ko_eff_mode <- 0.8; ko_eff_shape2 <- 5
-  # ko_eff <- rbeta(nsgRNA, shape1 = (ko_eff_mode*(ko_eff_shape2-2)+1)/(1-ko_eff_mode), shape2 = ko_eff_shape2)
+  # ko_eff <- rbeta(n_sgRNA, shape1 = (ko_eff_mode*(ko_eff_shape2-2)+1)/(1-ko_eff_mode), shape2 = ko_eff_shape2)
   # hist(ko_eff)
-  ko_eff <- c(rep(0, n_ntgt), rep(1, n_sfhb), rep(1, nsgRNA))
+  ko_eff <- c(rep(0, n_ntgt), rep(1, n_sfhb), rep(1, n_sgRNA))
 
   # sgRNA effects on sgRNA only
   if(is.null(sg_eff_mu2)) sg_eff_mu2 <- (-1)*sg_eff_mu1
   if(is.null(sg_eff_sd2)) sg_eff_sd2 <- sg_eff_sd1
   sg_eff_prop2 <- 1-sg_eff_prop1
-  sg_eff <- FamilyRank::rbinorm(n=nsgRNA, mean1=sg_eff_mu1, mean2=sg_eff_mu2, sd1=sg_eff_sd1,
+  sg_eff <- FamilyRank::rbinorm(n=n_sgRNA, mean1=sg_eff_mu1, mean2=sg_eff_mu2, sd1=sg_eff_sd1,
                                 sd2=sg_eff_sd2, prop = sg_eff_prop1)
   sg_eff <- c(rep(0, n_ntgt+n_sfhb), sg_eff)
 
   # DNA disturb effect
-  disturb_eff <- c(rep(0, n_ntgt), stats::rnorm(nsgRNA+n_sfhb, mean=distbDNA_mu, sd=distbDNA_sd))
+  disturb_eff <- c(rep(0, n_ntgt), stats::rnorm(n_sgRNA+n_sfhb, mean=distbDNA_mu, sd=distbDNA_sd))
 
   # treatment or toxin effects # negative value indicates a toxin
   trt_eff <- stats::rnorm(n_total, mean = trt_eff_mu, sd=trt_eff_sd)
@@ -183,9 +183,9 @@ sim_crispr <- function(method = "exp",
   if(is.null(sg_trt_eff_mu2)) sg_trt_eff_mu2 <- (-1)*sg_trt_eff_mu1
   if(is.null(sg_trt_eff_sd2)) sg_trt_eff_sd2 <- sg_trt_eff_sd1
   sg_trt_eff_prop2 <- 1-sg_trt_eff_prop1
-  sg_trt_eff <- FamilyRank::rbinorm(n=nsgRNA, mean1=sg_trt_eff_mu1, mean2=sg_trt_eff_mu2,
+  sg_trt_eff <- FamilyRank::rbinorm(n=n_sgRNA, mean1=sg_trt_eff_mu1, mean2=sg_trt_eff_mu2,
                                     sd1=sg_trt_eff_sd1, sd2=sg_trt_eff_sd2, prop = sg_trt_eff_prop1)
-  I_sg_trt <- sample(c(0, 1), size = nsgRNA, replace = T, prob = c(1-prop_sg_trt, prop_sg_trt))
+  I_sg_trt <- sample(c(0, 1), size = n_sgRNA, replace = T, prob = c(1-prop_sg_trt, prop_sg_trt))
   sg_trt_eff <- I_sg_trt*sg_trt_eff
   sg_trt_eff <- c(rep(0, n_ntgt+n_sfhb), sg_trt_eff)
 
@@ -194,9 +194,9 @@ sim_crispr <- function(method = "exp",
   if(is.null(distb_trt_eff_mu2)) distb_trt_eff_mu2 <- (-1)*distb_trt_eff_mu1
   if(is.null(distb_trt_eff_sd2)) distb_trt_eff_sd2 <- distb_trt_eff_sd1
   distb_trt_eff_prop2 <- 1-distb_trt_eff_prop1
-  distb_trt_eff <- FamilyRank::rbinorm(n=n_sfhb+nsgRNA, mean1=distb_trt_eff_mu1, mean2=distb_trt_eff_mu2,
+  distb_trt_eff <- FamilyRank::rbinorm(n=n_sfhb+n_sgRNA, mean1=distb_trt_eff_mu1, mean2=distb_trt_eff_mu2,
                                        sd1=distb_trt_eff_sd1, sd2=distb_trt_eff_sd2, prop = distb_trt_eff_prop1)
-  I_distb_trt <- sample(c(0, 1), size = n_sfhb+nsgRNA, replace = T, prob = c(1-prop_distb_trt, prop_distb_trt))
+  I_distb_trt <- sample(c(0, 1), size = n_sfhb+n_sgRNA, replace = T, prob = c(1-prop_distb_trt, prop_distb_trt))
   distb_trt_eff <- I_distb_trt*distb_trt_eff
   distb_trt_eff <- c(rep(0, n_ntgt), distb_trt_eff)
 
@@ -208,7 +208,7 @@ sim_crispr <- function(method = "exp",
   true_eff <- as.data.frame(rbind(sg_eff*ko_eff, trt_eff, ko_eff*sg_trt_eff, disturb_eff, distb_trt_eff))
   colnames(true_eff)[1:n_ntgt] <- paste("ntgt", 1:n_ntgt, sep = "")
   colnames(true_eff)[(n_ntgt+1):(n_ntgt+n_sfhb)] <- paste("sfhb", 1:n_sfhb, sep = "")
-  colnames(true_eff)[(n_ntgt+n_sfhb+1):n_total] <- paste("sg", 1:nsgRNA, sep = "")
+  colnames(true_eff)[(n_ntgt+n_sfhb+1):n_total] <- paste("sg", 1:n_sgRNA, sep = "")
   rownames(true_eff) <- c("KO", "TRT", "INT", "Distb", "DistbINT")
 
   true_eff_t <- as.data.frame(t(true_eff))
