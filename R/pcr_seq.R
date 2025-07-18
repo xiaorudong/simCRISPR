@@ -137,8 +137,9 @@ sequenceStep <- function(amp_frags, totalDepth, sf_sd=0.03) {
   adjustedProbs_all <- Probs_all * efficiencyFactors
 
   # begin sequencing
-  pb <- utils::txtProgressBar(min = 0, max = totalDepth %/% 1e9, style = 3) ; i=1 # add progressive bar
-
+  if(totalDepth >= 1e9) {
+    pb <- utils::txtProgressBar(min = 0, max = totalDepth %/% 1e9, style = 3) ; i=1 # add progressive bar
+  }
   splitdepth <- totalDepth
   sum_mycrispr <- matrix(rep(0, length(as.vector(adjustedProbs_all))), nrow = nrow(adjustedProbs_all), byrow = F)
   while (splitdepth %/% 1e9 > 0) {
