@@ -37,7 +37,8 @@ sim_crispr(
   n_total = 1000,
   n_ntgt = 100,
   n_sfhb = 50,
-  initial_mu = 1000
+  initial_mu = 1000,
+  initial_sd = NULL
 )
 }
 \arguments{
@@ -106,6 +107,8 @@ sim_crispr(
 \item{n_sfhb}{Number of safe harbor control sgRNAs.}
 
 \item{initial_mu}{Mean initial abundance of each sgRNA at the beginning of the experiment.}
+
+\item{initial_sd}{Standard deviation of initial abundance of each sgRNA at the beginning of the experiment.}
 }
 \value{
 A list containing simulated read count matrices and the corresponding true effects for each sgRNA.

@@ -76,6 +76,7 @@ sim_noise <- function(sd=0.5, n_total){
 #' @param n_ntgt Number of non-targeting control sgRNAs.
 #' @param n_sfhb Number of safe harbor control sgRNAs.
 #' @param initial_mu Mean initial abundance of each sgRNA at the beginning of the experiment.
+#' @param initial_sd Standard deviation of initial abundance of each sgRNA at the beginning of the experiment.
 #'
 #' @return A list containing simulated read count matrices and the corresponding true effects for each sgRNA.
 #' The structure of the returned list depends on the specified `method`:
@@ -131,7 +132,8 @@ sim_crispr <- function(method = "exp",
                        n_total=1000,
                        n_ntgt=100,
                        n_sfhb=50,
-                       initial_mu=1000) {
+                       initial_mu=1000,
+                       initial_sd=NULL) {
   #### Try to distinguish non targetting vs safe harbor (safe harbor make still have a "KO" effect due to cutting hurting the cell's overall fitness)
 
   valid_methods <- c("logit", "exp", "both")
@@ -153,7 +155,8 @@ sim_crispr <- function(method = "exp",
   # initial cells are from a binomial distribution
   # y0_binom_prob <- 0.5
   # y0 <- rbinom(n_total, initial_mu, prob = y0_binom_prob)
-  y0 <- round(stats::rnorm(n_total, initial_mu, initial_mu/10))
+  if(is.null(initial_sd)) initial_sd <- initial_mu/10
+  y0 <- round(stats::rnorm(n_total, initial_mu, initial_sd))
   if (any(y0 < 10)) {
     warning("Warning: y0 contains values less than 10, setting them to 10.")
     y0[y0 < 10] <- 10
