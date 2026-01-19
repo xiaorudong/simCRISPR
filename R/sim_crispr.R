@@ -90,6 +90,7 @@ sim_noise <- function(sd=0.5, n_total){
 #'   \item{\code{sim_raw}, \code{sim_logit_raw}, \code{sim_exp_raw}}{Raw counts from knockout samples only.}
 #'   \item{\code{true_eff_t}}{Matrix of true effect values for each sgRNA under different conditions (e.g., knockout, treatment, interaction).}
 #'   \item{\code{sim_full}, \code{sim_logit_full}, \code{sim_exp_full}}{Full raw count matrix including initial sgRNA counts, control samples, and knockout samples.}
+#'   \item{\code{params}{List containing all input parameters used to run the simulation.}}
 #' }
 #' @import FamilyRank
 #' @importFrom stats rnorm
@@ -322,13 +323,15 @@ sim_crispr <- function(method = "exp",
     sub_lgst_wide_data <- raw_lgst_count_wide[,grep("ko", colnames(raw_lgst_count_wide))]
   }
 
+  params <- as.list(match.call())[-1]
+
 
 
   if (method == "logit") return(list(sim_raw=sub_lgst_wide_data,true_eff_t = true_eff_t,
-                                     sim_full=raw_lgst_count_wide))
+                                     sim_full=raw_lgst_count_wide, params=params))
   if (method == "exp") return(list(sim_raw=sub_exp_wide_data,true_eff_t = true_eff_t,
-                                   sim_full=raw_exp_count_wide))
+                                   sim_full=raw_exp_count_wide, params=params))
   if (method == "both") return(list(sim_logit_raw=sub_lgst_wide_data, sim_exp_raw=sub_exp_wide_data, true_eff_t = true_eff_t,
-                                    sim_logit_full=raw_lgst_count_wide, sim_exp_full=raw_exp_count_wide))
+                                    sim_logit_full=raw_lgst_count_wide, sim_exp_full=raw_exp_count_wide, params=params))
 }
 

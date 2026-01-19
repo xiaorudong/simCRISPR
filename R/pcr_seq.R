@@ -28,7 +28,7 @@ seq_add <- function(wide_data, rounds=5, totalDepth = 1e9,
                           ep_mu=ep_mu, ep_sd=ep_sd,
                           pcr_sd=pcr_sd)
 
-  cat("Amplification completed. Proceeding to sequencing.\n")
+  cat("Amplification completed. Proceeding to sequencing.")
   combined_data <- as.data.frame(simCRISPR::sequenceStep(amp_frags=afteramp$amp_frags, totalDepth = totalDepth, sf_sd=sf_sd))
 
   cat("\nSequencing completed.\n")

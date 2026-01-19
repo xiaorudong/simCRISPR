@@ -123,6 +123,7 @@ The structure of the returned list depends on the specified `method`:
   \item{\code{sim_raw}, \code{sim_logit_raw}, \code{sim_exp_raw}}{Raw counts from knockout samples only.}
   \item{\code{true_eff_t}}{Matrix of true effect values for each sgRNA under different conditions (e.g., knockout, treatment, interaction).}
   \item{\code{sim_full}, \code{sim_logit_full}, \code{sim_exp_full}}{Full raw count matrix including initial sgRNA counts, control samples, and knockout samples.}
+  \item{\code{params}{List containing all input parameters used to run the simulation.}}
 }
 }
 \description{
