@@ -101,8 +101,8 @@ sim_noise <- function(sd=0.5, n_total){
 #'   \item{\code{sim_full}, \code{sim_logit_full}, \code{sim_exp_full}}{Full raw count matrix including initial sgRNA counts, control samples, and knockout samples.}
 #'   \item{\code{params}}{List containing all input parameters used to run the simulation.}
 #' }
-#' @import FamilyRank
-#' @importFrom stats rnorm
+#' @importFrom stats rbinom rnorm
+
 
 sim_crispr <- function(method = "exp",
                        samples = "independent",
@@ -233,7 +233,7 @@ sim_crispr <- function(method = "exp",
   if(is.null(sg_eff_mu2)) sg_eff_mu2 <- (-1)*sg_eff_mu1
   if(is.null(sg_eff_sd2)) sg_eff_sd2 <- sg_eff_sd1
   sg_eff_prop2 <- 1-sg_eff_prop1
-  sg_eff <- FamilyRank::rbinorm(n=n_sgRNA, mean1=sg_eff_mu1, mean2=sg_eff_mu2, sd1=sg_eff_sd1,
+  sg_eff <- rbinorm(n=n_sgRNA, mean1=sg_eff_mu1, mean2=sg_eff_mu2, sd1=sg_eff_sd1,
                                 sd2=sg_eff_sd2, prop = sg_eff_prop1)
   sg_eff <- c(rep(0, n_ntgt+n_sfhb), sg_eff)
 
@@ -247,7 +247,7 @@ sim_crispr <- function(method = "exp",
   if(is.null(sg_trt_eff_mu2)) sg_trt_eff_mu2 <- (-1)*sg_trt_eff_mu1
   if(is.null(sg_trt_eff_sd2)) sg_trt_eff_sd2 <- sg_trt_eff_sd1
   sg_trt_eff_prop2 <- 1-sg_trt_eff_prop1
-  sg_trt_eff <- FamilyRank::rbinorm(n=n_sgRNA, mean1=sg_trt_eff_mu1, mean2=sg_trt_eff_mu2,
+  sg_trt_eff <- rbinorm(n=n_sgRNA, mean1=sg_trt_eff_mu1, mean2=sg_trt_eff_mu2,
                                     sd1=sg_trt_eff_sd1, sd2=sg_trt_eff_sd2, prop = sg_trt_eff_prop1)
   I_sg_trt <- sample(c(0, 1), size = n_sgRNA, replace = T, prob = c(1-prop_sg_trt, prop_sg_trt))
   sg_trt_eff <- I_sg_trt*sg_trt_eff
@@ -258,7 +258,7 @@ sim_crispr <- function(method = "exp",
   if(is.null(distb_trt_eff_mu2)) distb_trt_eff_mu2 <- (-1)*distb_trt_eff_mu1
   if(is.null(distb_trt_eff_sd2)) distb_trt_eff_sd2 <- distb_trt_eff_sd1
   distb_trt_eff_prop2 <- 1-distb_trt_eff_prop1
-  distb_trt_eff <- FamilyRank::rbinorm(n=n_sfhb+n_sgRNA, mean1=distb_trt_eff_mu1, mean2=distb_trt_eff_mu2,
+  distb_trt_eff <- rbinorm(n=n_sfhb+n_sgRNA, mean1=distb_trt_eff_mu1, mean2=distb_trt_eff_mu2,
                                        sd1=distb_trt_eff_sd1, sd2=distb_trt_eff_sd2, prop = distb_trt_eff_prop1)
   I_distb_trt <- sample(c(0, 1), size = n_sfhb+n_sgRNA, replace = T, prob = c(1-prop_distb_trt, prop_distb_trt))
   distb_trt_eff <- I_distb_trt*distb_trt_eff
