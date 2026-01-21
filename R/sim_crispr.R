@@ -75,9 +75,18 @@ sim_noise <- function(sd=0.5, n_total){
 #' @param n_total Total number of sgRNAs, including knockout, non-targeting, and safe harbor controls.
 #' @param n_ntgt Number of non-targeting control sgRNAs.
 #' @param n_sfhb Number of safe harbor control sgRNAs.
-#' @param initial_mu Mean initial abundance of each sgRNA at the beginning of the experiment.
-#' @param initial_sd Standard deviation of initial abundance of each sgRNA at the beginning of the experiment.
-#'
+#' @param initial_dist Distribution used to generate initial sgRNA counts at the start of the experiment.
+#'   Options are "normal", "binomial", or "customize".
+#'   If "normal", counts are drawn from a normal distribution.
+#'   If "binomial", counts are drawn from a binomial distribution.
+#'   If "customize", user-provided counts are used.
+#' @param initial_mu Mean of the distribution used to generate initial sgRNA counts.
+#'   For "normal", this is the mean of the normal distribution. Default setting is "normal".
+#'   For "binomial", this is the number of trials (size) in the binomial distribution.
+#' @param initial_sd Standard deviation of the normal distribution used to generate initial sgRNA counts when `initial_dist = "normal"`. If NULL, it is set to `initial_mu / 10`.
+#' @param initial_binom_prob Success probability of the binomial distribution used to generate initial sgRNA counts when `initial_dist = "binomial"`. If NULL, the default value is 0.5.
+#' @param initial_count Numeric vector of user-defined initial sgRNA counts. Required when `initial_dist = "customize"`. Length must equal `n_total`.
+#' @param min_initial_count Minimum allowed initial sgRNA count.
 #' @return A list containing simulated read count matrices and the corresponding true effects for each sgRNA.
 #' The structure of the returned list depends on the specified `method`:
 #' \itemize{
@@ -90,7 +99,7 @@ sim_noise <- function(sd=0.5, n_total){
 #'   \item{\code{sim_raw}, \code{sim_logit_raw}, \code{sim_exp_raw}}{Raw counts from knockout samples only.}
 #'   \item{\code{true_eff_t}}{Matrix of true effect values for each sgRNA under different conditions (e.g., knockout, treatment, interaction).}
 #'   \item{\code{sim_full}, \code{sim_logit_full}, \code{sim_exp_full}}{Full raw count matrix including initial sgRNA counts, control samples, and knockout samples.}
-#'   \item{\code{params}{List containing all input parameters used to run the simulation.}}
+#'   \item{\code{params}}{List containing all input parameters used to run the simulation.}
 #' }
 #' @import FamilyRank
 #' @importFrom stats rnorm
@@ -133,15 +142,41 @@ sim_crispr <- function(method = "exp",
                        n_total=1000,
                        n_ntgt=100,
                        n_sfhb=50,
-                       initial_mu=1000,
-                       initial_sd=NULL) {
+
+                       initial_dist="normal",
+                       initial_mu=NULL,
+                       initial_sd=NULL,
+                       initial_binom_prob=NULL,
+                       initial_count=NULL,
+                       min_initial_count=10) {
   #### Try to distinguish non targetting vs safe harbor (safe harbor make still have a "KO" effect due to cutting hurting the cell's overall fitness)
 
   valid_methods <- c("logit", "exp", "both")
-  if (!method %in% valid_methods) {stop("Invalid method specified. Use 'logistic' or 'exponential'")}
+  if (!method %in% valid_methods) {stop("Invalid method specified. Use 'logistic' or 'exponential'.")}
 
   valid_samples <- c("independent", "matched")
-  if (!samples %in% valid_samples) {stop("Invalid samples specified. Use 'independent' or 'matched'")}
+  if (!samples %in% valid_samples) {stop("Invalid samples specified. Use 'independent' or 'matched'.")}
+
+  valid_initial_dist <- c("normal", "binomial", "customize")
+
+  if (is.null(initial_dist) || length(initial_dist) != 1 || !is.character(initial_dist)) {
+    stop("'initial_dist' must be a single character value.")
+  }
+  if (!initial_dist %in% valid_initial_dist) {
+    stop("Invalid 'initial_dist'. Choose one of: 'normal', 'binomial', 'customize'.")
+  }
+
+  if (initial_dist == "customize") {
+    if (is.null(initial_count)) {
+      stop("When 'initial_dist' is 'customize', 'initial_count' must be provided.")
+    }
+    if (!is.numeric(initial_count) || anyNA(initial_count)) {
+      stop("'initial_count' must be a numeric vector with no NA values.")
+    }
+    if (length(initial_count) != n_total) {
+      stop(sprintf("'initial_count' must have length %d (same as n_total).", n_total))
+    }
+  }
 
 
   #################################
@@ -153,15 +188,40 @@ sim_crispr <- function(method = "exp",
   # original growth rate
   orig_gr <- rep(baseline_gr, n_total) # growth rate
 
-  # initial cells are from a binomial distribution
-  # y0_binom_prob <- 0.5
-  # y0 <- rbinom(n_total, initial_mu, prob = y0_binom_prob)
-  if(is.null(initial_sd)) initial_sd <- initial_mu/10
-  y0 <- round(stats::rnorm(n_total, initial_mu, initial_sd))
-  if (any(y0 < 10)) {
-    warning("Warning: y0 contains values less than 10, setting them to 10.")
-    y0[y0 < 10] <- 10
+  # generate y0
+  if (initial_dist == "binomial") {
+    if (is.null(initial_mu)) initial_mu <- 1000
+    if (is.null(initial_binom_prob)) initial_binom_prob <- 0.5
+    y0 <- stats::rbinom(n_total, size = initial_mu, prob = initial_binom_prob)
+
+    message(sprintf(
+      "Initial sgRNA counts generated using binomial distribution (size = %g, prob = %g).",
+      initial_mu, initial_binom_prob
+    ))
+
+  } else if (initial_dist == "normal") {
+    if (is.null(initial_mu)) initial_mu <- 1000
+    if (is.null(initial_sd)) initial_sd <- initial_mu / 10
+    y0 <- round(pmax(0, stats::rnorm(n_total, mean = initial_mu, sd = initial_sd)))
+
+    message(sprintf(
+      "Initial sgRNA counts (y0) generated using normal distribution (mean = %g, sd = %g).",
+      initial_mu, initial_sd
+    ))
+
+  } else if (initial_dist == "customize") {
+    y0 <- initial_count
+
+    message("Initial sgRNA counts (y0) generated using user-provided initial_count.")
   }
+
+  min_y0 <- min_initial_count
+  if (any(y0 < min_y0)) {
+    warning(sprintf("y0 contains values < %d; setting them to %d.", min_y0, min_y0))
+    y0[y0 < min_y0] <- min_y0
+  }
+
+
 
   # knock out efficiency based on beta distribution
   # ko_eff_mode <- 0.8; ko_eff_shape2 <- 5
@@ -323,8 +383,9 @@ sim_crispr <- function(method = "exp",
     sub_lgst_wide_data <- raw_lgst_count_wide[,grep("ko", colnames(raw_lgst_count_wide))]
   }
 
-  params <- as.list(match.call())[-1]
+  params <- mget(names(formals(sim_crispr)), envir = environment())
 
+  message("\nRaw sgRNA counts ready. Proceed with seq_add() to simulate sequencing reads.")
 
 
   if (method == "logit") return(list(sim_raw=sub_lgst_wide_data,true_eff_t = true_eff_t,

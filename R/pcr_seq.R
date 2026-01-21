@@ -22,16 +22,16 @@ seq_add <- function(wide_data, rounds=5, totalDepth = 1e9,
                     ep_mu=0.01, ep_sd=0.001,
                     pcr_sd=0.02, sf_sd=0.03) {
 
-  cat("Starting the amplification step.\n")
+  message("Starting the amplification step.\n")
   afteramp <- simCRISPR::amplifyStep(wide_data, rounds=rounds,
                           cm_mu=cm_mu, cm_sd=cm_sd,
                           ep_mu=ep_mu, ep_sd=ep_sd,
                           pcr_sd=pcr_sd)
 
-  cat("Amplification completed. Proceeding to sequencing.")
+  message("Amplification completed. Proceeding to sequencing.\n")
   combined_data <- as.data.frame(simCRISPR::sequenceStep(amp_frags=afteramp$amp_frags, totalDepth = totalDepth, sf_sd=sf_sd))
 
-  cat("\nSequencing completed.\n")
+  message("Sequencing completed.")
 
   return(combined_data)
 }

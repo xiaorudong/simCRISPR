@@ -37,8 +37,12 @@ sim_crispr(
   n_total = 1000,
   n_ntgt = 100,
   n_sfhb = 50,
-  initial_mu = 1000,
-  initial_sd = NULL
+  initial_dist = "normal",
+  initial_mu = NULL,
+  initial_sd = NULL,
+  initial_binom_prob = NULL,
+  initial_count = NULL,
+  min_initial_count = 10
 )
 }
 \arguments{
@@ -106,9 +110,23 @@ sim_crispr(
 
 \item{n_sfhb}{Number of safe harbor control sgRNAs.}
 
-\item{initial_mu}{Mean initial abundance of each sgRNA at the beginning of the experiment.}
+\item{initial_dist}{Distribution used to generate initial sgRNA counts at the start of the experiment.
+Options are "normal", "binomial", or "customize".
+If "normal", counts are drawn from a normal distribution.
+If "binomial", counts are drawn from a binomial distribution.
+If "customize", user-provided counts are used.}
 
-\item{initial_sd}{Standard deviation of initial abundance of each sgRNA at the beginning of the experiment.}
+\item{initial_mu}{Mean of the distribution used to generate initial sgRNA counts.
+For "normal", this is the mean of the normal distribution. Default setting is "normal".
+For "binomial", this is the number of trials (size) in the binomial distribution.}
+
+\item{initial_sd}{Standard deviation of the normal distribution used to generate initial sgRNA counts when `initial_dist = "normal"`. If NULL, it is set to `initial_mu / 10`.}
+
+\item{initial_binom_prob}{Success probability of the binomial distribution used to generate initial sgRNA counts when `initial_dist = "binomial"`. If NULL, the default value is 0.5.}
+
+\item{initial_count}{Numeric vector of user-defined initial sgRNA counts. Required when `initial_dist = "customize"`. Length must equal `n_total`.}
+
+\item{min_initial_count}{Minimum allowed initial sgRNA count.}
 }
 \value{
 A list containing simulated read count matrices and the corresponding true effects for each sgRNA.
@@ -123,7 +141,7 @@ The structure of the returned list depends on the specified `method`:
   \item{\code{sim_raw}, \code{sim_logit_raw}, \code{sim_exp_raw}}{Raw counts from knockout samples only.}
   \item{\code{true_eff_t}}{Matrix of true effect values for each sgRNA under different conditions (e.g., knockout, treatment, interaction).}
   \item{\code{sim_full}, \code{sim_logit_full}, \code{sim_exp_full}}{Full raw count matrix including initial sgRNA counts, control samples, and knockout samples.}
-  \item{\code{params}{List containing all input parameters used to run the simulation.}}
+  \item{\code{params}}{List containing all input parameters used to run the simulation.}
 }
 }
 \description{
